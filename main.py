@@ -1,21 +1,8 @@
-from flask import Flask, request, redirect
-import cgi
+from flask import Flask, request
+from caesar import rotate_string
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-
-form = """
-<!doctype html>
-<html>
-    <body>
-        <form action="/hello" method="post">
-            <label for="first-name">First Name:</label>
-            <input id="first-name" type="text" name="first_name"/>
-            <input type="submit" />
-        </form>
-    <body>
-</html>
-"""
 
 form = """
 <!doctype html>
@@ -38,21 +25,28 @@ form = """
         </style>
     </head>
     <body>
-        <form action="/web-caesar" method="post">
-            <label for="rot">Rotate by:</label>
-            <input id="rot" type="text" name="rot"/>
-            <input id="text" type="textarea" name="text"/>
-            <input type="submit"/>
+        <form method='POST'>
+            <label value="0"> Rotate by:
+                <input type="text" name="rot" />
+            </label>
+            <textarea name="text">{0}</textarea>
+            <input type="submit" value="Submit Query"/>
         </form>
     </body>
 </html>
 """
 
+
 @app.route("/")
 def index():
-    return form
+    return form.format("")
 
-@app.route("/hello", methods=['POST'])
-def hello():
-    first_name = request.form['first_name']
-    return '<h1>Hello, ' + cgi.escape(first_name) + '</h1>'
+
+@app.route("/", methods=['POST'])
+def encrypt():
+    rot = int(request.form['rot'])
+    text = request.form['text']
+    encrypted = rotate_string(text, rot)
+    return form.format(encrypted)
+
+app.run()
